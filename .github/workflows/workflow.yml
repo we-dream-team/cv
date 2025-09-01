@@ -41,8 +41,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: ${{ env.AWS_REGION }}
-          # Option 1 (recommandé): Assumer un rôle via OIDC (renseigner le secret AWS_ROLE_TO_ASSUME)
+          aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           
       - name: Sync "out" to S3 (pages générales, cache court)
