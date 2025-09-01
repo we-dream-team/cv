@@ -1,15 +1,16 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Briefcase, Search, Filter, Moon, SunMedium, Printer, Mail, Phone, MapPin, Link as LinkIcon, ShieldCheck, Rocket, Sparkles } from 'lucide-react'
+import { Briefcase, Search, Filter, Moon, SunMedium, Download, Mail, Phone, MapPin, Link as LinkIcon, ShieldCheck, Rocket, Sparkles } from 'lucide-react'
 
 const PROFILE = {
   name: 'Fayçal ZOUAOUI',
   role: 'Ingénieur Cloud / DevOps',
-  email: 'zouaoui.faycal.p@gmail.com',
+  email: 'faycal.zouaoui@wedreamteam.com',
   phone: '06 51 16 02 07',
   location: 'Lille, France',
   website: null as string | null,
+  linkedin: 'http://www.linkedin.com/in/faycal-zouaoui-65b0a5201',
 }
 
 type Mission = {
@@ -161,6 +162,15 @@ export default function Page() {
   const [query, setQuery] = useState('')
   const [tag, setTag] = useState<string | null>(null)
   const [dark, setDark] = useState(true)
+  const [visitCount, setVisitCount] = useState(0)
+
+  // Compteur de visites invisible
+  React.useEffect(() => {
+    const currentCount = parseInt(localStorage.getItem('nbr-visite') || '0')
+    const newCount = currentCount + 1
+    localStorage.setItem('nbr-visite', newCount.toString())
+    setVisitCount(newCount)
+  }, [])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -204,6 +214,22 @@ export default function Page() {
 
   return (
     <div className={classNames(dark ? 'dark' : '', 'min-h-screen')}>
+      {/* Compteur de visites invisible - visible uniquement lors de l'inspection */}
+      <div 
+        id="nbr-visite" 
+        data-visit-count={visitCount}
+        style={{ 
+          position: 'absolute', 
+          left: '-9999px', 
+          top: '-9999px',
+          visibility: 'hidden',
+          pointerEvents: 'none'
+        }}
+        aria-hidden="true"
+      >
+        Nombre de visites: {visitCount}
+      </div>
+      
       <style>{`
         @media print {
           .no-print { display: none !important; }
@@ -222,6 +248,16 @@ export default function Page() {
                 <span className="inline-flex items-center gap-1"><Phone className="w-4 h-4"/> {PROFILE.phone}</span>
                 <span className="inline-flex items-center gap-1"><MapPin className="w-4 h-4"/> {PROFILE.location}</span>
                 {PROFILE.website && <span className="inline-flex items-center gap-1"><LinkIcon className="w-4 h-4"/> {PROFILE.website}</span>}
+                {PROFILE.linkedin && (
+                  <a 
+                    href={PROFILE.linkedin} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
+                  >
+                    <LinkIcon className="w-4 h-4"/> LinkedIn
+                  </a>
+                )}
               </p>
             </div>
             <div className="no-print flex items-center gap-2">
@@ -233,10 +269,18 @@ export default function Page() {
                 {dark ? <SunMedium className="w-4 h-4"/> : <Moon className="w-4 h-4"/>}
               </button>
               <button
-                onClick={() => window.print()}
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = '/Faycal-ZOUAOUI .pdf';
+                  link.download = 'Faycal-ZOUAOUI.pdf';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
                 className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+                title="Télécharger le CV en PDF"
               >
-                <Printer className="w-4 h-4"/>
+                <Download className="w-4 h-4"/>
               </button>
             </div>
           </div>
@@ -278,7 +322,7 @@ export default function Page() {
           <section className="grid sm:grid-cols-3 gap-3 mb-8">
             <StatCard icon={<ShieldCheck className="w-5 h-5"/>} title="Missions" value={MISSIONS.length} />
             <StatCard icon={<Rocket className="w-5 h-5"/>} title="Compétences tech" value={allTags.length} />
-            <StatCard icon={<Sparkles className="w-5 h-5"/>} title="Imprimable" value="Oui" />
+            <StatCard icon={<Sparkles className="w-5 h-5"/>} title="Téléchargeable" value="PDF" />
           </section>
 
           <section className="grid md:grid-cols-2 gap-6">
