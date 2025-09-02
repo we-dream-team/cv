@@ -91,11 +91,12 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
-  logging_config {
-    include_cookies = false
-    bucket          = aws_s3_bucket.logs.bucket_domain_name
-    prefix          = "cloudfront/"
-  }
+  # Logs CloudFront désactivés pour éviter les problèmes d'ACL
+  # logging_config {
+  #   include_cookies = false
+  #   bucket          = aws_s3_bucket.logs.bucket_domain_name
+  #   prefix          = "cloudfront/"
+  # }
 
   tags = local.tags
 
