@@ -1,10 +1,14 @@
-# OAC recommandé
+# OAC recommandé avec nom unique
 resource "aws_cloudfront_origin_access_control" "oac" {
-  name                              = "${var.project_name}-oac"
+  name                              = "${var.project_name}-oac-${random_id.suffix.hex}"
   description                       = "OAC for ${var.project_name} site bucket"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
+  
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Certificat ACM en us-east-1 si domaine personnalisé
@@ -40,6 +44,10 @@ resource "aws_cloudfront_distribution" "this" {
   is_ipv6_enabled = true
   price_class     = var.price_class
   aliases         = local.aliases
+  
+  lifecycle {
+    create_before_destroy = true
+  }
 
   origin {
     domain_name = aws_s3_bucket.site.bucket_regional_domain_name
