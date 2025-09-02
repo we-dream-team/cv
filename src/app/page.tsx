@@ -1,16 +1,15 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Briefcase, Search, Filter, Moon, SunMedium, Download, Mail, Phone, MapPin, Link as LinkIcon, ShieldCheck, Rocket, Sparkles } from 'lucide-react'
+import { Briefcase, Search, Filter, Moon, SunMedium, Printer, Mail, Phone, MapPin, Link as LinkIcon, ShieldCheck, Rocket, Sparkles } from 'lucide-react'
 
 const PROFILE = {
   name: 'Fayçal ZOUAOUI',
   role: 'Ingénieur Cloud / DevOps',
-  email: 'faycal.zouaoui@wedreamteam.com',
+  email: 'zouaoui.faycal.p@gmail.com',
   phone: '06 51 16 02 07',
   location: 'Lille, France',
   website: null as string | null,
-  linkedin: 'http://www.linkedin.com/in/faycal-zouaoui-65b0a5201',
 }
 
 type Mission = {
@@ -162,17 +161,8 @@ export default function Page() {
   const [query, setQuery] = useState('')
   const [tag, setTag] = useState<string | null>(null)
   const [dark, setDark] = useState(true)
-  const [visitCount, setVisitCount] = useState(0)
-  const [showEmailModal, setShowEmailModal] = useState(false)
-  const [email, setEmail] = useState('')
 
-  // Compteur de visites invisible
-  React.useEffect(() => {
-    const currentCount = parseInt(localStorage.getItem('nbr-visite') || '0')
-    const newCount = currentCount + 1
-    localStorage.setItem('nbr-visite', newCount.toString())
-    setVisitCount(newCount)
-  }, [])
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -216,22 +206,6 @@ export default function Page() {
 
   return (
     <div className={classNames(dark ? 'dark' : '', 'min-h-screen')}>
-      {/* Compteur de visites invisible - visible uniquement lors de l'inspection */}
-      <div 
-        id="nbr-visite" 
-        data-visit-count={visitCount}
-        style={{ 
-          position: 'absolute', 
-          left: '-9999px', 
-          top: '-9999px',
-          visibility: 'hidden',
-          pointerEvents: 'none'
-        }}
-        aria-hidden="true"
-      >
-        Nombre de visites: {visitCount}
-      </div>
-      
       <style>{`
         @media print {
           .no-print { display: none !important; }
@@ -250,16 +224,6 @@ export default function Page() {
                 <span className="inline-flex items-center gap-1"><Phone className="w-4 h-4"/> {PROFILE.phone}</span>
                 <span className="inline-flex items-center gap-1"><MapPin className="w-4 h-4"/> {PROFILE.location}</span>
                 {PROFILE.website && <span className="inline-flex items-center gap-1"><LinkIcon className="w-4 h-4"/> {PROFILE.website}</span>}
-                {PROFILE.linkedin && (
-                  <a 
-                    href={PROFILE.linkedin} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
-                  >
-                    <LinkIcon className="w-4 h-4"/> LinkedIn
-                  </a>
-                )}
               </p>
             </div>
             <div className="no-print flex items-center gap-2">
@@ -271,11 +235,10 @@ export default function Page() {
                 {dark ? <SunMedium className="w-4 h-4"/> : <Moon className="w-4 h-4"/>}
               </button>
               <button
-                onClick={() => setShowEmailModal(true)}
+                onClick={() => window.print()}
                 className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
-                title="Télécharger le CV en PDF"
               >
-                <Download className="w-4 h-4"/>
+                <Printer className="w-4 h-4"/>
               </button>
             </div>
           </div>
@@ -317,7 +280,7 @@ export default function Page() {
           <section className="grid sm:grid-cols-3 gap-3 mb-8">
             <StatCard icon={<ShieldCheck className="w-5 h-5"/>} title="Missions" value={MISSIONS.length} />
             <StatCard icon={<Rocket className="w-5 h-5"/>} title="Compétences tech" value={allTags.length} />
-            <StatCard icon={<Sparkles className="w-5 h-5"/>} title="Téléchargeable" value="PDF" />
+            <StatCard icon={<Sparkles className="w-5 h-5"/>} title="Imprimable" value="Oui" />
           </section>
 
           <section className="grid md:grid-cols-2 gap-6">
@@ -349,91 +312,7 @@ export default function Page() {
           </section>
         </main>
 
-        {/* Modal pour la saisie de l'email */}
-        {showEmailModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-md w-full border border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold mb-4">Télécharger le CV</h3>
-              <p className="text-sm opacity-80 mb-4">
-                Veuillez saisir votre adresse email pour télécharger le CV en PDF.
-              </p>
-              
-              <form onSubmit={async (e) => {
-                e.preventDefault()
-                if (email.trim()) {
-                  try {
-                    // Envoyer la notification
-                    const downloadTime = new Date().toLocaleString('fr-FR')
-                    const response = await fetch('/api/notify', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        email: email.trim(),
-                        downloadTime: downloadTime
-                      })
-                    })
-                    
-                    if (response.ok) {
-                      console.log('✅ Notification envoyée avec succès')
-                    } else {
-                      console.warn('⚠️ Erreur lors de l\'envoi de la notification')
-                    }
-                    
-                    // Télécharger le PDF
-                    const link = document.createElement('a')
-                    link.href = '/Faycal-ZOUAOUI .pdf'
-                    link.download = 'Faycal-ZOUAOUI.pdf'
-                    document.body.appendChild(link)
-                    link.click()
-                    document.body.removeChild(link)
-                    
-                    // Fermer le modal et réinitialiser l'email
-                    setShowEmailModal(false)
-                    setEmail('')
-                    
-                    // Message de succès
-                    alert(`CV téléchargé avec succès ! Vous recevrez une notification.`)
-                    
-                  } catch (error) {
-                    console.error('❌ Erreur:', error)
-                    alert('Erreur lors du téléchargement. Veuillez réessayer.')
-                  }
-                }
-              }}>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="votre@email.com"
-                  required
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 mb-4 outline-none focus:ring-2 focus:ring-sky-500"
-                />
-                
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowEmailModal(false)
-                      setEmail('')
-                    }}
-                    className="flex-1 px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!email.trim()}
-                    className="flex-1 px-4 py-2 rounded-xl bg-sky-600 text-white hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Télécharger
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+
 
         <script
           type="application/ld+json"
