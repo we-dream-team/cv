@@ -33,3 +33,15 @@ variable "default_tags" {
     ManagedBy = "Terraform"
   }
 }
+
+variable "resend_api_key" {
+  type        = string
+  description = "Resend API key for email notifications"
+  default     = ""
+}
+
+variable "resend_account_email" {
+  type        = string
+  description = "Resend account email for notifications"
+  default     = ""
+}

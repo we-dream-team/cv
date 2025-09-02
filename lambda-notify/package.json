@@ -1,0 +1,17 @@
+{
+  "name": "cv-notify-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function for CV download notifications",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --production && zip -r ../lambda-notify.zip .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "resend": "^3.0.0"
+  },
+  "devDependencies": {},
+  "keywords": ["lambda", "notifications", "resend", "cv"],
+  "author": "Fayçal ZOUAOUI",
+  "license": "MIT"
+}

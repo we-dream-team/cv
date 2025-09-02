@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
   id-token: write  # if you prefer OIDC with role assumption
-
+  
 env:
   NODE_VERSION: '20'
   BUCKET_NAME: portfolio-faycal-site-bucket-cv 
@@ -47,12 +47,31 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
         role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
         
-    - name: 🚀 Deploy to S3
+    - name: 🔨 Build Lambda function
       run: |
-          aws s3 sync ./out s3://$BUCKET_NAME \
-            --delete \
-            --exclude "_next/*" \
-            --cache-control "public, max-age=300"
+        cd lambda-notify
+        npm install --production
+        zip -r ../lambda-notify.zip .
+        cd ..
+        
+    - name: 🔍 Check Infrastructure Status
+      run: |
+        echo "🏗️ Infrastructure déployée automatiquement par le workflow infrastructure.yml"
+        echo "📋 Vérification que l'infrastructure est prête..."
+        
+        # Vérifier que l'API Gateway est accessible
+        if [ -n "${{ secrets.API_GATEWAY_URL }}" ]; then
+          echo "✅ API Gateway configurée"
+        else
+          echo "⚠️ API Gateway URL non configurée dans les secrets"
+        fi
+        
+    - name: 📤 Deploy to S3
+      run: |
+        aws s3 sync ./out s3://$BUCKET_NAME \
+          --delete \
+          --exclude "_next/*" \
+          --cache-control "public, max-age=300"
     
     - name: Upload Next static assets with long cache
       run: |

@@ -1,0 +1,110 @@
+name: 🏗️ Deploy Infrastructure
+
+on:
+  push:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infrastructure.yml'
+    branches: [ main ]
+  pull_request:
+    paths:
+      - 'infra/**'
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: 'eu-west-3'
+  TF_VERSION: '1.6.0'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📋 Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+        
+    - name: 📋 Setup AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        
+    - name: 🔍 Terraform Format Check
+      run: |
+        cd infra
+        terraform fmt -check -recursive
+        
+    - name: 🔍 Terraform Init
+      run: |
+        cd infra
+        terraform init
+        
+    - name: 🔍 Terraform Validate
+      run: |
+        cd infra
+        terraform validate
+        
+    - name: 📋 Terraform Plan
+      id: plan
+      run: |
+        cd infra
+        terraform plan -detailed-exitcode -out=tf.plan
+      continue-on-error: true
+      
+    - name: 📋 Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: |
+        if [ ${{ steps.plan.outcome }} == 'failure' ]; then
+          echo "❌ Terraform plan failed"
+          exit 1
+        fi
+        
+    - name: 🚀 Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        cd infra
+        terraform apply -auto-approve tf.plan
+        
+    - name: 📤 Terraform Outputs
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        cd infra
+        echo "🏗️ Infrastructure déployée avec succès !"
+        echo "📊 Outputs Terraform :"
+        terraform output
+        
+    - name: 🔄 Comment PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const output = `## 🏗️ Infrastructure Changes Detected
+          
+          **Terraform Plan Summary:**
+          - ✅ Format check: Passed
+          - ✅ Validation: Passed
+          - 📋 Plan: Generated
+          
+          **Next steps:**
+          1. Review the Terraform plan above
+          2. Merge this PR to deploy infrastructure changes
+          3. Infrastructure will be deployed automatically on merge
+          
+          **Note:** This workflow only generates a plan. Infrastructure changes will be applied when merged to main.`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          });
