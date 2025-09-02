@@ -1,7 +1,3 @@
-# Configuration du backend Terraform
-# Pour le moment, on utilise le backend local
-# Vous pouvez configurer un backend S3 plus tard pour la collaboration
-
 terraform {
   required_version = ">= 1.6.0"
   

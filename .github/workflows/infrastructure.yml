@@ -59,6 +59,8 @@ jobs:
         sed -i "s|REPLACE_WITH_SECRET|${{ secrets.RESEND_API_KEY }}|g" terraform.tfvars
         sed -i "s|REPLACE_WITH_SECRET|${{ secrets.RESEND_ACCOUNT_EMAIL }}|g" terraform.tfvars
         
+
+        
     - name: 🔍 Terraform Init
       run: |
         cd infra
