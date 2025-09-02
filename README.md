@@ -56,6 +56,8 @@ npm install
 ```
 
 ### 3. Configuration des variables d'environnement
+
+#### **Option A : Développement local**
 ```bash
 # Copier le fichier d'exemple
 cp env.example .env.local
@@ -64,6 +66,9 @@ cp env.example .env.local
 RESEND_API_KEY=re_votre_cle_api
 RESEND_ACCOUNT_EMAIL=votre.email.personnel@gmail.com
 ```
+
+#### **Option B : Production avec GitHub Secrets (Recommandé)**
+Suivez le guide [GITHUB-SECRETS.md](./GITHUB-SECRETS.md) pour configurer vos secrets GitHub.
 
 ### 4. Lancer en développement
 ```bash
@@ -112,29 +117,37 @@ npm start
 
 ### Déploiement sur AWS
 
-#### 1. Build de l'application
+#### **Option A : Déploiement manuel**
 ```bash
+# 1. Build de l'application
 npm run build
-```
 
-#### 2. Déploiement Terraform
-```bash
+# 2. Déploiement Terraform
 cd infra
 terraform plan -out tf.plan
 terraform apply tf.plan
-```
 
-#### 3. Sync vers S3
-```bash
-# Retourner à la racine
+# 3. Sync vers S3
 cd ..
-
-# Sync du build vers S3
 aws s3 sync ./out s3://$(terraform -chdir=infra output -raw site_bucket_name) --delete
 
-# Invalidation CloudFront
+# 4. Invalidation CloudFront
 aws cloudfront create-invalidation --distribution-id $(terraform -chdir=infra output -raw cloudfront_distribution_id) --paths "/*"
 ```
+
+#### **Option B : Déploiement automatique (Recommandé)**
+Le projet inclut un workflow GitHub Actions qui déploie automatiquement à chaque push sur la branche `main`.
+
+**Configuration requise :**
+1. Configurez vos [secrets GitHub](./GITHUB-SECRETS.md)
+2. Faites un push sur la branche `main`
+3. Le déploiement se lance automatiquement
+
+**Avantages :**
+- ✅ Déploiement automatique
+- ✅ Sécurisé avec secrets GitHub
+- ✅ Pas de clés API dans le code
+- ✅ Traçabilité des déploiements
 
 ## 📁 Structure du projet
 
