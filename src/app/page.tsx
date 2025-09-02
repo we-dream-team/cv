@@ -8,7 +8,7 @@ const PROFILE = {
   role: 'Ingénieur Cloud / DevOps',
   email: 'faycal.zouaoui@wedreamteam.com',
   phone: '06 51 16 02 07',
-  location: 'Lille, France',
+  location: 'France',
   website: null as string | null,
   linkedin: 'http://www.linkedin.com/in/faycal-zouaoui-65b0a5201',
 }
