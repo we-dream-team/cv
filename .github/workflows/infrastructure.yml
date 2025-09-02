@@ -52,6 +52,13 @@ jobs:
         zip -r ../infra/lambda-notify.zip .
         cd ..
         
+    - name: 🔧 Setup Terraform Variables
+      run: |
+        cd infra
+        cp terraform.tfvars.template terraform.tfvars
+        sed -i "s|REPLACE_WITH_SECRET|${{ secrets.RESEND_API_KEY }}|g" terraform.tfvars
+        sed -i "s|REPLACE_WITH_SECRET|${{ secrets.RESEND_ACCOUNT_EMAIL }}|g" terraform.tfvars
+        
     - name: 🔍 Terraform Init
       run: |
         cd infra
@@ -89,10 +96,7 @@ jobs:
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
         cd infra
-        terraform apply -auto-approve \
-          -var "resend_api_key=${{ secrets.RESEND_API_KEY }}" \
-          -var "resend_account_email=${{ secrets.RESEND_ACCOUNT_EMAIL }}" \
-          tf.plan
+        terraform apply -auto-approve tf.plan
         
     - name: 📤 Terraform Outputs
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'

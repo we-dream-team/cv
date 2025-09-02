@@ -10,8 +10,8 @@ resource "aws_lambda_function" "notify" {
 
   environment {
     variables = {
-      RESEND_API_KEY       = var.resend_api_key
-      RESEND_ACCOUNT_EMAIL = var.resend_account_email
+      RESEND_API_KEY       = local.resend_api_key
+      RESEND_ACCOUNT_EMAIL = local.resend_account_email
     }
   }
 

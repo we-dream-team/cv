@@ -92,6 +92,7 @@ jspm_packages/
 .terraform/
 .terraform.lock.hcl
 tf.plan
+terraform.tfvars
 
 # OS generated files
 .DS_Store
