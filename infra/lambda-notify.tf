@@ -1,16 +1,16 @@
 # Lambda function pour les notifications
 resource "aws_lambda_function" "notify" {
-  filename         = "lambda-notify.zip"
-  function_name    = "${var.project_name}-notify"
-  role            = aws_iam_role.lambda_notify_role.arn
-  handler         = "index.handler"
-  runtime         = "nodejs20.x"
-  timeout         = 30
-  memory_size     = 128
+  filename      = "lambda-notify.zip"
+  function_name = "${var.project_name}-notify"
+  role          = aws_iam_role.lambda_notify_role.arn
+  handler       = "index.handler"
+  runtime       = "nodejs20.x"
+  timeout       = 30
+  memory_size   = 128
 
   environment {
     variables = {
-      RESEND_API_KEY = var.resend_api_key
+      RESEND_API_KEY       = var.resend_api_key
       RESEND_ACCOUNT_EMAIL = var.resend_account_email
     }
   }
@@ -70,8 +70,8 @@ resource "aws_api_gateway_integration" "notify_lambda" {
   http_method = aws_api_gateway_method.notify_post.http_method
 
   integration_http_method = "POST"
-  type                   = "AWS_PROXY"
-  uri                    = aws_lambda_function.notify.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.notify.invoke_arn
 }
 
 # Permission Lambda pour API Gateway

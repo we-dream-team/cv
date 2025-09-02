@@ -3,6 +3,12 @@ variable "project_name" {
   description = "Project name for tagging and naming"
 }
 
+variable "region" {
+  type        = string
+  description = "Region for S3 and general resources (ex: eu-west-3)"
+  default     = "eu-west-3"
+}
+
 variable "site_bucket_name" {
   type        = string
   description = "Name of the S3 bucket for the static site (must be globally unique)"

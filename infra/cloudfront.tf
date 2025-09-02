@@ -9,10 +9,10 @@ resource "aws_cloudfront_origin_access_control" "oac" {
 
 # Certificat ACM en us-east-1 si domaine personnalisé
 resource "aws_acm_certificate" "cert" {
-  count                     = local.use_custom_domain ? 1 : 0
-  provider                  = aws.use1
-  domain_name               = var.domain_name
-  validation_method         = "DNS"
+  count             = local.use_custom_domain ? 1 : 0
+  provider          = aws.use1
+  domain_name       = var.domain_name
+  validation_method = "DNS"
   options { certificate_transparency_logging_preference = "ENABLED" }
   tags = local.tags
 }
@@ -36,10 +36,10 @@ resource "aws_acm_certificate_validation" "cert" {
 
 # Distribution CloudFront
 resource "aws_cloudfront_distribution" "this" {
-  enabled             = true
-  is_ipv6_enabled     = true
-  price_class         = var.price_class
-  aliases             = local.aliases
+  enabled         = true
+  is_ipv6_enabled = true
+  price_class     = var.price_class
+  aliases         = local.aliases
 
   origin {
     domain_name = aws_s3_bucket.site.bucket_regional_domain_name
@@ -71,9 +71,9 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = local.use_custom_domain ? aws_acm_certificate_validation.cert[0].certificate_arn : null
-    ssl_support_method  = local.use_custom_domain ? "sni-only" : null
-    minimum_protocol_version = "TLSv1.2_2021"
+    acm_certificate_arn            = local.use_custom_domain ? aws_acm_certificate_validation.cert[0].certificate_arn : null
+    ssl_support_method             = local.use_custom_domain ? "sni-only" : null
+    minimum_protocol_version       = "TLSv1.2_2021"
     cloudfront_default_certificate = local.use_custom_domain ? false : true
   }
 
@@ -103,11 +103,11 @@ resource "aws_s3_bucket_policy" "site" {
     Version = "2012-10-17",
     Statement = [
       {
-        Sid      = "AllowCloudFrontServicePrincipalReadOnly",
-        Effect   = "Allow",
+        Sid       = "AllowCloudFrontServicePrincipalReadOnly",
+        Effect    = "Allow",
         Principal = { Service = "cloudfront.amazonaws.com" },
-        Action   = ["s3:GetObject"],
-        Resource = "${aws_s3_bucket.site.arn}/*",
+        Action    = ["s3:GetObject"],
+        Resource  = "${aws_s3_bucket.site.arn}/*",
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = aws_cloudfront_distribution.this.arn
