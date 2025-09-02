@@ -136,18 +136,28 @@ aws cloudfront create-invalidation --distribution-id $(terraform -chdir=infra ou
 ```
 
 #### **Option B : Déploiement automatique (Recommandé)**
-Le projet inclut un workflow GitHub Actions qui déploie automatiquement à chaque push sur la branche `main`.
+Le projet inclut **deux workflows GitHub Actions** séparés :
+
+**1. Infrastructure (Terraform) :**
+- Se déclenche automatiquement sur modification du dossier `infra/`
+- Déploie Lambda + API Gateway + S3 + CloudFront
+- Inclut validation et formatage automatique
+
+**2. Application (Frontend) :**
+- Se déclenche sur push vers `main`
+- Déploie le frontend Next.js vers S3
+- Invalide le cache CloudFront
 
 **Configuration requise :**
 1. Configurez vos [secrets GitHub](./GITHUB-SECRETS.md)
-2. Faites un push sur la branche `main`
-3. Le déploiement se lance automatiquement
+2. Modifiez l'infrastructure → Déploiement automatique
+3. Modifiez l'application → Déploiement automatique
 
 **Avantages :**
-- ✅ Déploiement automatique
-- ✅ Sécurisé avec secrets GitHub
-- ✅ Pas de clés API dans le code
-- ✅ Traçabilité des déploiements
+- ✅ **Séparation des responsabilités** : Infra vs App
+- ✅ **Déploiement automatique** et sécurisé
+- ✅ **Validation Terraform** automatique
+- ✅ **Traçabilité complète** des déploiements
 
 ## 📁 Structure du projet
 
