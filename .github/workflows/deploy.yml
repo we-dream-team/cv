@@ -1,0 +1,78 @@
+name: 🚀 Deploy CV to AWS
+
+on:
+  push:
+    branches: 
+      - main
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  BUCKET_NAME: portfolio-faycal-site-bucket-cv 
+  AWS_REGION: 'eu-west-3'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔧 Setup environment variables
+      run: |
+        echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> .env.production
+        echo "RESEND_ACCOUNT_EMAIL=${{ secrets.RESEND_ACCOUNT_EMAIL }}" >> .env.production
+        echo "NODE_ENV=production" >> .env.production
+        
+    - name: 🏗️ Build application
+      run: npm run build
+      
+    - name: 📋 Setup AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ secrets.AWS_REGION }}
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        
+    - name: 🚀 Deploy to S3
+      run: |
+          aws s3 sync ./out s3://$BUCKET_NAME \
+            --delete \
+            --exclude "_next/*" \
+            --cache-control "public, max-age=300"
+    
+    - name: Upload Next static assets with long cache
+      run: |
+          if [ -d out/_next ]; then
+            aws s3 cp ./out/_next s3://$BUCKET_NAME/_next --recursive \
+              --cache-control "public, max-age=31536000, immutable" \
+              --metadata-directive REPLACE
+          fi        
+    - name: (Optional) Upload static assets with long cache
+      if: ${{ hashFiles('out/static/**') != '' }}
+      run: |
+        aws s3 cp ./out/static s3://$BUCKET_NAME/static --recursive \
+          --cache-control "public, max-age=31536000, immutable" \
+          --metadata-directive REPLACE
+
+    - name: 🔄 Invalidate CloudFront
+      run: |
+        if [ -n "${{ secrets.DISTRIBUTION_ID }}" ]; then
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
+            --paths "/*"
+        else
+          echo "No CloudFront distribution ID provided, skipping cache invalidation"
+        fi
+          
+    - name: ✅ Deploy success
+      run: echo "🎉 CV déployé avec succès sur AWS!"

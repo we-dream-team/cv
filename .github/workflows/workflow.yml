@@ -1,77 +1,77 @@
 
 
-name: Deploy Portfolio to S3 + CloudFront
+# name: Deploy Portfolio to S3 + CloudFront
 
-on:
-  push:
-    branches: ["main"]
-  workflow_dispatch: {}
+# on:
+#   push:
+#     branches: ["main"]
+#   workflow_dispatch: {}
 
-env:
-  BUCKET_NAME: portfolio-faycal-site-bucket-cv
-  AWS_REGION: eu-west-3  # change if needed
+# env:
+#   BUCKET_NAME: portfolio-faycal-site-bucket-cv
+#   AWS_REGION: eu-west-3  # change if needed
 
-permissions:
-  contents: read
-  id-token: write  # if you prefer OIDC with role assumption
+# permissions:
+#   contents: read
+#   id-token: write  # if you prefer OIDC with role assumption
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+#       - name: Install dependencies
+#         run: npm ci
 
-      - name: Build (Next.js)
-        run: npm run build
+#       - name: Build (Next.js)
+#         run: npm run build
 
-      # Build génère automatiquement le site statique dans le dossier 'out'
-      - name: Build (Next.js)
-        run: npm run build
+#       # Build génère automatiquement le site statique dans le dossier 'out'
+#       - name: Build (Next.js)
+#         run: npm run build
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-region: ${{ secrets.AWS_REGION }}
+#           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           
-      - name: Sync "out" to S3 (pages générales, cache court)
-        run: |
-          aws s3 sync ./out s3://$BUCKET_NAME \
-            --delete \
-            --exclude "_next/*" \
-            --cache-control "public, max-age=300"
+#       - name: Sync "out" to S3 (pages générales, cache court)
+#         run: |
+#           aws s3 sync ./out s3://$BUCKET_NAME \
+#             --delete \
+#             --exclude "_next/*" \
+#             --cache-control "public, max-age=300"
 
-      - name: Upload Next static assets with long cache
-        run: |
-          if [ -d out/_next ]; then
-            aws s3 cp ./out/_next s3://$BUCKET_NAME/_next --recursive \
-              --cache-control "public, max-age=31536000, immutable" \
-              --metadata-directive REPLACE
-          fi
+#       - name: Upload Next static assets with long cache
+#         run: |
+#           if [ -d out/_next ]; then
+#             aws s3 cp ./out/_next s3://$BUCKET_NAME/_next --recursive \
+#               --cache-control "public, max-age=31536000, immutable" \
+#               --metadata-directive REPLACE
+#           fi
 
-      - name: (Optional) Upload static assets with long cache
-        if: ${{ hashFiles('out/static/**') != '' }}
-        run: |
-          aws s3 cp ./out/static s3://$BUCKET_NAME/static --recursive \
-            --cache-control "public, max-age=31536000, immutable" \
-            --metadata-directive REPLACE
+#       - name: (Optional) Upload static assets with long cache
+#         if: ${{ hashFiles('out/static/**') != '' }}
+#         run: |
+#           aws s3 cp ./out/static s3://$BUCKET_NAME/static --recursive \
+#             --cache-control "public, max-age=31536000, immutable" \
+#             --metadata-directive REPLACE
 
-      - name: Invalidate CloudFront cache (if distribution ID provided)
-        run: |
-          if [ -n "${{ secrets.DISTRIBUTION_ID }}" ]; then
-            aws cloudfront create-invalidation \
-              --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
-              --paths "/*"
-          else
-            echo "No CloudFront distribution ID provided, skipping cache invalidation"
-          fi
+#       - name: Invalidate CloudFront cache (if distribution ID provided)
+#         run: |
+#           if [ -n "${{ secrets.DISTRIBUTION_ID }}" ]; then
+#             aws cloudfront create-invalidation \
+#               --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
+#               --paths "/*"
+#           else
+#             echo "No CloudFront distribution ID provided, skipping cache invalidation"
+#           fi

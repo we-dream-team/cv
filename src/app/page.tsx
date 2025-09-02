@@ -163,6 +163,8 @@ export default function Page() {
   const [tag, setTag] = useState<string | null>(null)
   const [dark, setDark] = useState(true)
   const [visitCount, setVisitCount] = useState(0)
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [email, setEmail] = useState('')
 
   // Compteur de visites invisible
   React.useEffect(() => {
@@ -269,14 +271,7 @@ export default function Page() {
                 {dark ? <SunMedium className="w-4 h-4"/> : <Moon className="w-4 h-4"/>}
               </button>
               <button
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = '/Faycal-ZOUAOUI .pdf';
-                  link.download = 'Faycal-ZOUAOUI.pdf';
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }}
+                onClick={() => setShowEmailModal(true)}
                 className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
                 title="Télécharger le CV en PDF"
               >
@@ -353,6 +348,92 @@ export default function Page() {
             ))}
           </section>
         </main>
+
+        {/* Modal pour la saisie de l'email */}
+        {showEmailModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-md w-full border border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-semibold mb-4">Télécharger le CV</h3>
+              <p className="text-sm opacity-80 mb-4">
+                Veuillez saisir votre adresse email pour télécharger le CV en PDF.
+              </p>
+              
+              <form onSubmit={async (e) => {
+                e.preventDefault()
+                if (email.trim()) {
+                  try {
+                    // Envoyer la notification
+                    const downloadTime = new Date().toLocaleString('fr-FR')
+                    const response = await fetch('/api/notify', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        email: email.trim(),
+                        downloadTime: downloadTime
+                      })
+                    })
+                    
+                    if (response.ok) {
+                      console.log('✅ Notification envoyée avec succès')
+                    } else {
+                      console.warn('⚠️ Erreur lors de l\'envoi de la notification')
+                    }
+                    
+                    // Télécharger le PDF
+                    const link = document.createElement('a')
+                    link.href = '/Faycal-ZOUAOUI .pdf'
+                    link.download = 'Faycal-ZOUAOUI.pdf'
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                    
+                    // Fermer le modal et réinitialiser l'email
+                    setShowEmailModal(false)
+                    setEmail('')
+                    
+                    // Message de succès
+                    alert(`CV téléchargé avec succès ! Vous recevrez une notification.`)
+                    
+                  } catch (error) {
+                    console.error('❌ Erreur:', error)
+                    alert('Erreur lors du téléchargement. Veuillez réessayer.')
+                  }
+                }
+              }}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  required
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 mb-4 outline-none focus:ring-2 focus:ring-sky-500"
+                />
+                
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEmailModal(false)
+                      setEmail('')
+                    }}
+                    className="flex-1 px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!email.trim()}
+                    className="flex-1 px-4 py-2 rounded-xl bg-sky-600 text-white hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Télécharger
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         <script
           type="application/ld+json"
