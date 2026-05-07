@@ -1,15 +1,30 @@
-# CloudFront Function — réécrit /foo/ → /foo/index.html et /foo → /foo/index.html
-# (sauf pour les fichiers avec extension comme .pdf, .docx, .png, .js, .css, etc.)
+# CloudFront Function — gère le routage du Next.js static export
+# - /foo/        → /foo/index.html
+# - /foo         → /foo/index.html (si pas d'extension)
+# - /file.ext/   → 301 vers /file.ext (évite que Google voie le sitemap en HTML)
+# - /file.ext    → passe tel quel
 resource "aws_cloudfront_function" "rewrite_index" {
   name    = "${var.project_name}-rewrite-index"
   runtime = "cloudfront-js-2.0"
   publish = true
-  comment = "Rewrite /<path>/ and /<path> to /<path>/index.html for static export"
+  comment = "Static export routing + redirect for trailing-slash on file URLs"
   code    = <<-EOT
     function handler(event) {
       var request = event.request;
       var uri = request.uri;
+
       if (uri.endsWith('/')) {
+        var trimmed = uri.slice(0, -1);
+        var lastSlash = trimmed.lastIndexOf('/');
+        var lastDot = trimmed.lastIndexOf('.');
+        // Si c'est un fichier (extension après le dernier '/'), redirect 301 sans slash
+        if (lastDot > lastSlash) {
+          return {
+            statusCode: 301,
+            statusDescription: 'Moved Permanently',
+            headers: { location: { value: trimmed } }
+          };
+        }
         request.uri = uri + 'index.html';
       } else if (uri.lastIndexOf('.') < uri.lastIndexOf('/')) {
         request.uri = uri + '/index.html';
