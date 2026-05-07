@@ -32,6 +32,12 @@ variable "zone_name" {
   default     = ""
 }
 
+variable "acm_certificate_arn" {
+  type        = string
+  description = "(Required when use_custom_domain) ARN of the ACM cert in us-east-1 used by CloudFront for HTTPS. Renseigné dynamiquement par bootstrap.sh depuis la distribution existante."
+  default     = ""
+}
+
 variable "price_class" {
   type        = string
   description = "CloudFront price class (PriceClass_100, PriceClass_200, PriceClass_All)"
