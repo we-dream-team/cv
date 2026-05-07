@@ -5,6 +5,7 @@ import { ClientLogos } from './_components/ClientLogos'
 import { ContactFooter } from './_components/ContactFooter'
 import { Hero } from './_components/Hero'
 import { MissionTimeline } from './_components/MissionTimeline'
+import { Projects } from './_components/Projects'
 import { SkillsGrid } from './_components/SkillsGrid'
 import { Toolbar } from './_components/Toolbar'
 import { MISSIONS, PROFILE } from './_data/profile'
@@ -129,6 +130,8 @@ export default function Page() {
         </section>
 
         <SkillsGrid activeTag={tag} onTagClick={handleTagClick} />
+
+        <Projects />
       </main>
 
       <ContactFooter />

@@ -57,7 +57,7 @@ export function ContactFooter() {
         <div className="grid gap-12 md:grid-cols-[1.1fr_1fr] md:gap-16">
           <div>
             <p className="font-mono text-2xs uppercase tracking-[0.25em] text-muted-foreground">
-              03 — Contact
+              04 — Contact
             </p>
             <h2 className="mt-3 font-display text-4xl font-semibold leading-[1.05] tracking-tightest text-balance sm:text-5xl">
               Parlons de votre prochaine plateforme.
