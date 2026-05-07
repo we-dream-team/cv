@@ -160,17 +160,15 @@ else
     echo "  ACM cert: $CERT_ARN"
     import_if_missing "aws_acm_certificate.cert[0]" "$CERT_ARN"
 
-    # Records de validation ACM (CNAME)
+    # Records de validation ACM (CNAME) — la ressource utilise for_each
+    # avec domain_name comme clé.
     VALIDATION_RECORDS=$(aws acm describe-certificate --region us-east-1 --certificate-arn "$CERT_ARN" \
-      --query "Certificate.DomainValidationOptions[].ResourceRecord.[Name,Type]" \
+      --query "Certificate.DomainValidationOptions[].[DomainName,ResourceRecord.Name,ResourceRecord.Type]" \
       --output text 2>/dev/null)
-    idx=0
-    while IFS=$'\t' read -r rec_name rec_type; do
+    while IFS=$'\t' read -r dvo_domain rec_name rec_type; do
       [[ -z "$rec_name" || "$rec_name" == "None" ]] && continue
-      # Trim trailing dot
       rec_name="${rec_name%.}"
-      import_if_missing "aws_route53_record.cert_validation[$idx]" "${ZONE_ID}_${rec_name}_${rec_type}"
-      idx=$((idx + 1))
+      import_if_missing "aws_route53_record.cert_validation[\"${dvo_domain}\"]" "${ZONE_ID}_${rec_name}_${rec_type}"
     done <<< "$VALIDATION_RECORDS"
   fi
 fi

@@ -43,13 +43,25 @@ resource "aws_acm_certificate" "cert" {
 }
 
 # Enregistrements DNS pour valider le certificat
+# for_each (au lieu de count) pour permettre à terraform plan de fonctionner
+# même si les domain_validation_options ne sont pas encore connus.
 resource "aws_route53_record" "cert_validation" {
-  count   = local.use_custom_domain ? length(aws_acm_certificate.cert[0].domain_validation_options) : 0
+  for_each = local.use_custom_domain ? {
+    for dvo in aws_acm_certificate.cert[0].domain_validation_options :
+    dvo.domain_name => {
+      name   = dvo.resource_record_name
+      type   = dvo.resource_record_type
+      record = dvo.resource_record_value
+    }
+  } : {}
+
   zone_id = local.hosted_zone_id
-  name    = tolist(aws_acm_certificate.cert[0].domain_validation_options)[count.index].resource_record_name
-  type    = tolist(aws_acm_certificate.cert[0].domain_validation_options)[count.index].resource_record_type
-  records = [tolist(aws_acm_certificate.cert[0].domain_validation_options)[count.index].resource_record_value]
+  name    = each.value.name
+  type    = each.value.type
+  records = [each.value.record]
   ttl     = 60
+
+  allow_overwrite = true
 }
 
 resource "aws_acm_certificate_validation" "cert" {
