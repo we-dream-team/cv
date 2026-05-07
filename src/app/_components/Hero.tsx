@@ -60,7 +60,7 @@ export function Hero() {
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <a
-            href={`mailto:${PROFILE.email}`}
+            href="#contact"
             className="group inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-on-primary shadow-soft transition-transform hover:-translate-y-0.5 hover:shadow-elevated focus-visible:-translate-y-0.5"
           >
             <Mail className="h-4 w-4" />

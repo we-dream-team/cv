@@ -1,6 +1,6 @@
 'use client'
 
-import { Download, FileText, Filter, Moon, Printer, Search, SunMedium, X } from 'lucide-react'
+import { Download, FileText, Filter, Moon, Search, SunMedium, X } from 'lucide-react'
 
 type Props = {
   query: string
@@ -111,15 +111,6 @@ export function Toolbar({
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground hover:bg-muted"
           >
             {dark ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            aria-label="Imprimer la page"
-            title="Imprimer"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground hover:bg-muted"
-          >
-            <Printer className="h-4 w-4" />
           </button>
         </div>
       </div>

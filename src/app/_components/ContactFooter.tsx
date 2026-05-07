@@ -42,7 +42,7 @@ export function ContactFooter() {
   }
 
   return (
-    <footer className="relative overflow-hidden border-t border-border bg-background">
+    <footer id="contact" className="relative overflow-hidden border-t border-border bg-background scroll-mt-20">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent"
