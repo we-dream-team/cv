@@ -2,6 +2,7 @@
 
 import { ArrowUpRight, Linkedin, Mail, MapPin, Phone } from 'lucide-react'
 import { PROFILE } from '../_data/profile'
+import { VisitorCount } from './VisitorCount'
 
 type ContactItem = {
   label: string
@@ -105,6 +106,7 @@ export function ContactFooter() {
           <p className="inline-flex items-center gap-1.5">
             <MapPin className="h-4 w-4" /> Basé à {PROFILE.location}
           </p>
+          <VisitorCount />
           <p className="font-mono text-2xs uppercase tracking-[0.2em]">
             © {new Date().getFullYear()} {PROFILE.name}
           </p>
