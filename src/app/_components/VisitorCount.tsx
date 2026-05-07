@@ -17,7 +17,7 @@ export function VisitorCount() {
       typeof window !== 'undefined' && window.sessionStorage.getItem(SESSION_FLAG) === '1'
 
     const url = alreadyCounted
-      ? `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}`
+      ? `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/`
       : `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`
 
     let cancelled = false
