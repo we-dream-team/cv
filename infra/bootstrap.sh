@@ -61,21 +61,6 @@ if [[ -z "$DIST_ID" || "$DIST_ID" == "None" ]]; then
 fi
 echo "  CloudFront Distribution: $DIST_ID"
 
-# Cert ARN actuellement utilisé par la distribution (us-east-1, requis par CF)
-CERT_ARN=$(aws cloudfront get-distribution --id "$DIST_ID" \
-  --query "Distribution.DistributionConfig.ViewerCertificate.ACMCertificateArn" \
-  --output text 2>/dev/null)
-if [[ -n "$CERT_ARN" && "$CERT_ARN" != "None" ]]; then
-  echo "  ACM cert ARN (depuis la distribution): $CERT_ARN"
-  # Injecte dans tfvars pour que terraform plan voie le bon ARN
-  if grep -q '^acm_certificate_arn' terraform.tfvars; then
-    sed -i.bak "s|^acm_certificate_arn.*|acm_certificate_arn = \"$CERT_ARN\"|" terraform.tfvars
-  else
-    echo "acm_certificate_arn = \"$CERT_ARN\"" >> terraform.tfvars
-  fi
-  rm -f terraform.tfvars.bak
-fi
-
 OAC_ID=$(aws cloudfront get-distribution --id "$DIST_ID" \
   --query "Distribution.DistributionConfig.Origins.Items[0].OriginAccessControlId" \
   --output text)
@@ -165,6 +150,30 @@ else
        --query "ResourceRecordSets[?Name=='${ALIAS_FQDN}' && Type=='A'].Name | [0]" \
        --output text 2>/dev/null | grep -q "${ALIAS_FQDN}"; then
     import_if_missing "aws_route53_record.alias[0]" "${ZONE_ID}_${DOMAIN_NAME}_A"
+  fi
+
+  # ACM cert en us-east-1 — si un cert ISSUED existe déjà pour le domaine,
+  # on l'importe pour éviter d'en créer un nouveau.
+  CERT_ARN=$(aws acm list-certificates --region us-east-1 \
+    --certificate-statuses ISSUED PENDING_VALIDATION \
+    --query "CertificateSummaryList[?DomainName=='${DOMAIN_NAME}'].CertificateArn | [0]" \
+    --output text 2>/dev/null)
+  if [[ -n "$CERT_ARN" && "$CERT_ARN" != "None" ]]; then
+    echo "  ACM cert existant: $CERT_ARN"
+    import_if_missing "aws_acm_certificate.cert[0]" "$CERT_ARN"
+
+    # CNAME de validation : un seul (count=1, index 0)
+    VALIDATION_RECORD=$(aws acm describe-certificate --region us-east-1 --certificate-arn "$CERT_ARN" \
+      --query "Certificate.DomainValidationOptions[0].ResourceRecord.[Name,Type]" \
+      --output text 2>/dev/null)
+    rec_name=$(echo "$VALIDATION_RECORD" | awk '{print $1}')
+    rec_type=$(echo "$VALIDATION_RECORD" | awk '{print $2}')
+    if [[ -n "$rec_name" && "$rec_name" != "None" ]]; then
+      rec_name="${rec_name%.}"
+      import_if_missing "aws_route53_record.cert_validation[0]" "${ZONE_ID}_${rec_name}_${rec_type}"
+    fi
+  else
+    echo "  Aucun cert ACM existant pour ${DOMAIN_NAME} — terraform en créera un."
   fi
 fi
 

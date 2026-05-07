@@ -32,11 +32,39 @@ resource "aws_cloudfront_origin_access_control" "oac" {
   }
 }
 
-# Le certificat ACM (us-east-1) est géré hors Terraform — on récupère son
-# ARN via var.acm_certificate_arn (rempli par le bootstrap depuis la
-# distribution CloudFront existante). Ça évite tout le ballet
-# create cert + DNS validation + wait, qui pose des problèmes circulaires
-# au plan quand le cert n'est pas encore en state.
+# Certificat ACM en us-east-1 (CloudFront l'exige) — un seul domaine, pas de SAN.
+resource "aws_acm_certificate" "cert" {
+  count             = local.use_custom_domain ? 1 : 0
+  provider          = aws.use1
+  domain_name       = var.domain_name
+  validation_method = "DNS"
+  options { certificate_transparency_logging_preference = "ENABLED" }
+  tags = local.tags
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Record CNAME de validation DNS — count statique (1 domaine), valeurs
+# résolues à l'apply quand domain_validation_options sera connu.
+resource "aws_route53_record" "cert_validation" {
+  count = local.use_custom_domain ? 1 : 0
+
+  zone_id         = local.hosted_zone_id
+  name            = tolist(aws_acm_certificate.cert[0].domain_validation_options)[0].resource_record_name
+  type            = tolist(aws_acm_certificate.cert[0].domain_validation_options)[0].resource_record_type
+  records         = [tolist(aws_acm_certificate.cert[0].domain_validation_options)[0].resource_record_value]
+  ttl             = 60
+  allow_overwrite = true
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  count                   = local.use_custom_domain ? 1 : 0
+  provider                = aws.use1
+  certificate_arn         = aws_acm_certificate.cert[0].arn
+  validation_record_fqdns = [for r in aws_route53_record.cert_validation : r.fqdn]
+}
 
 # Distribution CloudFront
 resource "aws_cloudfront_distribution" "this" {
@@ -90,7 +118,7 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    acm_certificate_arn            = local.use_custom_domain ? var.acm_certificate_arn : null
+    acm_certificate_arn            = local.use_custom_domain ? aws_acm_certificate_validation.cert[0].certificate_arn : null
     ssl_support_method             = local.use_custom_domain ? "sni-only" : null
     minimum_protocol_version       = "TLSv1.2_2021"
     cloudfront_default_certificate = local.use_custom_domain ? false : true
@@ -110,6 +138,8 @@ resource "aws_cloudfront_distribution" "this" {
   # }
 
   tags = local.tags
+
+  depends_on = [aws_acm_certificate_validation.cert]
 }
 
 # Politique S3 pour n'accepter que CloudFront (via OAC)
