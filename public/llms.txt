@@ -1,0 +1,21 @@
+# Fayçal ZOUAOUI — Ingénieur Cloud / DevOps
+
+Portfolio de missions de Fayçal ZOUAOUI, Tech Lead DevOps basé à Lille (France).
+10+ ans d'expérience AWS, Kubernetes, Terraform, GitOps, sécurité cloud.
+
+## Contact
+- Email: faycal.zouaoui@wedreamteam.com
+- LinkedIn: https://www.linkedin.com/in/faycal-zouaoui-65b0a5201
+- Localisation: Lille, France
+
+## Missions principales
+- Waykonect (TotalEnergies) — Tech Lead DevOps (2023–présent)
+- SNCF Connect & Tech — Cloud Engineer AWS (2022–2023)
+- Société Générale — Cloud Engineer AWS / DevOps (2018–2022)
+- Finalcad — Cloud Engineer AWS (2020–2021)
+- PMU — DevOps (2018)
+- SFIL — Ingénieur Linux & Production (2015–2018)
+
+## Stack
+AWS, EKS, Terraform, GitHub Actions, FluxCD, ArgoCD, Helm, Vault,
+Prometheus, Grafana, Jenkins, CircleCI, GitOps, Trivy, ACM-PCA, KEDA.
