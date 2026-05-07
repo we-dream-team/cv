@@ -5,7 +5,7 @@ price_class      = "PriceClass_100"
 
 # Domaine personnalisé (DNS, ACM, alias CloudFront)
 domain_name = "cv.wedreamteam.com"
-zone_name   = "cv.wedreamteam.com"
+zone_name   = "wedreamteam.com"
 
 default_tags = {
   ManagedBy   = "Terraform"

@@ -14,7 +14,7 @@ STATE_BUCKET="${STATE_BUCKET:-portfolio-faycal-tfstate}"
 SITE_BUCKET="${SITE_BUCKET:-portfolio-faycal-site-bucket-cv}"
 REGION="${REGION:-eu-west-3}"
 DOMAIN_NAME="${DOMAIN_NAME:-cv.wedreamteam.com}"
-ZONE_NAME="${ZONE_NAME:-cv.wedreamteam.com}"
+ZONE_NAME="${ZONE_NAME:-wedreamteam.com}"
 
 log() { printf '\n\033[1;34m▶ %s\033[0m\n' "$*"; }
 
