@@ -50,16 +50,16 @@ jobs:
         cd infra
         cp terraform.tfvars.template terraform.tfvars
 
-    - name: 🔍 Terraform Init
+    - name: 🪝 Bootstrap Terraform state (S3 backend + import)
       run: |
         cd infra
-        terraform init
-        
+        bash bootstrap.sh
+
     - name: 🎨 Terraform Format
       run: |
         cd infra
         terraform fmt -recursive
-        
+
     - name: 🔍 Terraform Validate
       run: |
         cd infra

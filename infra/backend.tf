@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.6.0"
-  
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -11,14 +11,13 @@ terraform {
       version = "~> 3.0"
     }
   }
-  
-  # Backend local par défaut
-  # Pour passer à S3, décommentez et configurez :
-  # backend "s3" {
-  #   bucket = "votre-terraform-state-bucket"
-  #   key    = "cv-clean/terraform.tfstate"
-  #   region = "eu-west-3"
-  # }
+
+  backend "s3" {
+    bucket  = "portfolio-faycal-tfstate"
+    key     = "cv/terraform.tfstate"
+    region  = "eu-west-3"
+    encrypt = true
+  }
 }
 
 # Configuration des providers
