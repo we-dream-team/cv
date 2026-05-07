@@ -6,6 +6,7 @@ import {
   Building2,
   Code2,
   Download,
+  FileText,
   Mail,
   MapPin,
   Sparkles,
@@ -66,14 +67,25 @@ export function Hero() {
             Me contacter
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
-          <button
-            type="button"
-            onClick={() => window.print()}
+          <a
+            href="/cv-faycal-zouaoui.pdf"
+            download
             className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
             <Download className="h-4 w-4" />
             Télécharger le CV
-          </button>
+            <span className="rounded-full bg-muted px-1.5 py-0.5 font-mono text-2xs uppercase tracking-wider text-muted-foreground">
+              PDF
+            </span>
+          </a>
+          <a
+            href="/cv-faycal-zouaoui.docx"
+            download
+            className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-accent/40 hover:text-foreground"
+          >
+            <FileText className="h-4 w-4" />
+            <span className="font-mono text-2xs uppercase tracking-wider">.docx</span>
+          </a>
           <span className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/60 px-3 py-1.5 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" /> {PROFILE.location}
           </span>

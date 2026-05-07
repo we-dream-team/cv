@@ -1,6 +1,6 @@
 'use client'
 
-import { Filter, Moon, Printer, Search, SunMedium, X } from 'lucide-react'
+import { Download, FileText, Filter, Moon, Printer, Search, SunMedium, X } from 'lucide-react'
 
 type Props = {
   query: string
@@ -84,6 +84,26 @@ export function Toolbar({
         </div>
 
         <div className="ml-auto flex items-center gap-1">
+          <a
+            href="/cv-faycal-zouaoui.pdf"
+            download
+            aria-label="Télécharger le CV au format PDF"
+            title="Télécharger CV — PDF"
+            className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-foreground transition-colors hover:bg-muted"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden font-mono text-2xs uppercase tracking-wider sm:inline">PDF</span>
+          </a>
+          <a
+            href="/cv-faycal-zouaoui.docx"
+            download
+            aria-label="Télécharger le CV au format DOCX"
+            title="Télécharger CV — DOCX"
+            className="hidden h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
+          >
+            <FileText className="h-4 w-4" />
+            <span className="font-mono text-2xs uppercase tracking-wider">DOCX</span>
+          </a>
           <button
             type="button"
             onClick={onToggleDark}
@@ -95,7 +115,8 @@ export function Toolbar({
           <button
             type="button"
             onClick={() => window.print()}
-            aria-label="Imprimer ou télécharger en PDF"
+            aria-label="Imprimer la page"
+            title="Imprimer"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground hover:bg-muted"
           >
             <Printer className="h-4 w-4" />

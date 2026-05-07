@@ -87,15 +87,24 @@ jobs:
           --cache-control "public, max-age=31536000, immutable" \
           --metadata-directive REPLACE
 
+    - name: 🔍 Lookup CloudFront distribution by S3 origin
+      id: cf
+      run: |
+        DIST_ID=$(aws cloudfront list-distributions \
+          --query "DistributionList.Items[?Origins.Items[?contains(DomainName, '${BUCKET_NAME}')]].Id | [0]" \
+          --output text)
+        if [ -z "$DIST_ID" ] || [ "$DIST_ID" = "None" ]; then
+          echo "❌ Aucune distribution CloudFront trouvée pour le bucket ${BUCKET_NAME}"
+          exit 1
+        fi
+        echo "✅ Distribution trouvée : $DIST_ID"
+        echo "dist_id=$DIST_ID" >> "$GITHUB_OUTPUT"
+
     - name: 🔄 Invalidate CloudFront
       run: |
-        if [ -n "${{ secrets.DISTRIBUTION_ID }}" ]; then
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
-            --paths "/*"
-        else
-          echo "No CloudFront distribution ID provided, skipping cache invalidation"
-        fi
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ steps.cf.outputs.dist_id }} \
+          --paths "/*"
           
     - name: ✅ Deploy success
       run: echo "🎉 CV déployé avec succès sur AWS!"
