@@ -1,0 +1,76 @@
+name: 🗺️ Refresh sitemap
+
+on:
+  # Tous les lundis à 06:00 UTC
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate sitemap.xml from app routes
+        id: gen
+        run: |
+          set -euo pipefail
+
+          BASE="https://cv.wedreamteam.com"
+          DATE=$(date -u +"%Y-%m-%d")
+
+          # Découvre les pages Next.js (app router)
+          # src/app/page.tsx        → /
+          # src/app/count/page.tsx  → /count/
+          ROUTES=$(find src/app -name 'page.tsx' \
+            | sed -E 's|^src/app||; s|/page\.tsx$||' \
+            | awk 'NF==0 { print "/"; next } { print $0"/" }' \
+            | sort -u)
+
+          {
+            echo '<?xml version="1.0" encoding="UTF-8"?>'
+            echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            for route in $ROUTES; do
+              printf '  <url>\n'
+              printf '    <loc>%s%s</loc>\n' "$BASE" "$route"
+              printf '    <lastmod>%s</lastmod>\n' "$DATE"
+              printf '  </url>\n'
+            done
+            echo '</urlset>'
+          } > public/sitemap.xml
+
+          echo "## Sitemap généré" >> $GITHUB_STEP_SUMMARY
+          echo '```xml' >> $GITHUB_STEP_SUMMARY
+          cat public/sitemap.xml >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit if changed
+        id: commit
+        run: |
+          if git diff --quiet public/sitemap.xml; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "Sitemap inchangé — rien à committer." | tee -a $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/sitemap.xml
+          git commit -m "chore(seo): refresh sitemap.xml lastmod ($(date -u +%Y-%m-%d))"
+          git push origin HEAD:main
+          echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Trigger deploy workflow
+        # Les pushes faits avec GITHUB_TOKEN ne déclenchent pas d'autres workflows ;
+        # on dispatch manuellement le deploy après commit.
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run deploy.yml --ref main
+          echo "Deploy workflow déclenché." >> $GITHUB_STEP_SUMMARY
