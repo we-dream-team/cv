@@ -1,3 +1,9 @@
+# Suffixe aléatoire utilisé pour générer un nom unique d'OAC CloudFront
+# (référencé par aws_cloudfront_origin_access_control.oac dans cloudfront.tf)
+resource "random_id" "suffix" {
+  byte_length = 3
+}
+
 resource "aws_s3_bucket" "site" {
   bucket = var.site_bucket_name
   tags   = local.tags

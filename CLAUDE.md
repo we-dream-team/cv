@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Personal portfolio / CV for Fayçal ZOUAOUI. Next.js 14 single-page app exported as static HTML, hosted on S3 + CloudFront, with a CV-download notification flow that emails the owner via Resend. UI is in French.
+Personal portfolio / CV for Fayçal ZOUAOUI. Next.js 14 multi-page app exported as static HTML, hosted on S3 + CloudFront. UI is in French.
+
+Pages:
+- `/` — main CV (hero, missions timeline, skills, contact footer).
+- `/count` — public visitor counter, reads from counterapi.dev (3rd-party).
 
 ## Commands
 
@@ -17,58 +21,65 @@ npm start        # serve a production build locally (rarely used — site is sta
 
 There is no test suite. `npm run lint` is the only programmatic check.
 
-Manual API smoke test: open `http://localhost:3000/test-api.html` after `npm run dev`.
-
 ## Architecture
-
-### Two notification backends — pick one based on environment
-
-The CV-download notification has **two parallel implementations** that share identical logic and HTML email template. Both must be kept in sync when either changes:
-
-- `src/app/api/notify/route.ts` — Next.js API route. **Only works in `next dev` / `next start`.** Because `next.config.mjs` sets `output: 'export'`, this route is **not included in the static build** and does nothing in production.
-- `lambda-notify/index.js` — AWS Lambda (Node 20) behind API Gateway. This is what production actually calls. Built into `lambda-notify.zip` by the infra workflow and deployed by Terraform.
-
-Both expect `POST { email, downloadTime }` and read `RESEND_API_KEY` + `RESEND_ACCOUNT_EMAIL` from env.
 
 ### Static export constraint
 
 `next.config.mjs` has `output: 'export'` and `trailingSlash: true`. This means:
 - No server runtime in production — only static files in `./out`.
-- API routes, server components, image optimization, middleware, and dynamic routes do not work in deployed builds. The `app/api/notify` route only exists for local dev.
-- Any new server-side logic must be added to `lambda-notify/` (and a corresponding API Gateway route in `infra/lambda-notify.tf`), not to `src/app/api/`.
+- API routes, server components, image optimization, middleware, and dynamic routes do not work in deployed builds.
+- For requests like `/count/`, CloudFront rewrites the URI to `/count/index.html` via a CloudFront Function (see `infra/cloudfront.tf`).
 
-### Single-page UI
+### UI
 
-`src/app/page.tsx` (`'use client'`) is the entire UI. Profile data, missions, and tags are hardcoded constants at the top of the file (`PROFILE`, `MISSIONS`). Editing the CV content means editing arrays in this file. There is no CMS, no data fetching, and no routing beyond the root path.
+- `src/app/page.tsx` (`'use client'`) — main CV page, composed of components in `src/app/_components/`.
+- `src/app/count/page.tsx` (`'use client'`) — visitor counter standalone page.
+- Profile / missions data is hardcoded in `src/app/_data/profile.ts`. Skill categorisation in `src/app/_data/skill-categories.ts`. Stats helpers in `src/app/_data/stats.ts`.
+- Visitor counter (`VisitorCount.tsx`) hits `https://api.counterapi.dev/v1/cv-faycal-zouaoui/visits/up` (POST-equivalent GET) on first session view, then `…/visits/` on rerenders. SessionStorage flag `vc:cv-faycal-zouaoui:visits:counted` dedupes.
+
+### CV downloads
+
+Built artefacts served as static assets from `public/`:
+- `public/cv-faycal-zouaoui.pdf` — generated locally from `EXPERIENCES.md` via `pandoc → weasyprint` with `.pandoc-print.css`.
+- `public/cv-faycal-zouaoui.docx` — generated locally from `EXPERIENCES.md` via `pandoc`.
+- `public/linkedin-carousel/*.png` — 6 carousel slides generated via the `gpt-image-2` skill.
+
+Regenerate (after editing `EXPERIENCES.md`):
+
+```bash
+pandoc EXPERIENCES.md -o EXPERIENCES.docx --from markdown --to docx --toc --toc-depth=2
+pandoc EXPERIENCES.md -o /tmp/experiences.html --from markdown --to html5 --standalone --css .pandoc-print.css --embed-resources
+weasyprint /tmp/experiences.html EXPERIENCES.pdf
+cp EXPERIENCES.pdf public/cv-faycal-zouaoui.pdf
+cp EXPERIENCES.docx public/cv-faycal-zouaoui.docx
+```
 
 ### Infrastructure (Terraform under `infra/`)
 
-- `s3.tf` — site bucket (private, OAC-only access).
-- `cloudfront.tf` — distribution with optional ACM cert in us-east-1 when `domain_name` + `hosted_zone_id` are set.
-- `lambda-notify.tf` — Lambda + REST API Gateway (`/notify` POST, stage `prod`). Lambda env vars are populated from `var.resend_api_key` / `var.resend_account_email`.
+- `s3.tf` — site bucket (private, OAC-only access) + `random_id.suffix` used to name the OAC.
+- `cloudfront.tf` — distribution with optional ACM cert in us-east-1 when `domain_name` + `hosted_zone_id` are set. Includes a CloudFront Function (`rewrite_index`) that rewrites `/foo/` → `/foo/index.html` (and `/foo` → `/foo/index.html` when there is no extension), required for sub-routes like `/count/`. Custom error responses on 403 + 404 fall back to `/index.html`.
 - `route53.tf` — DNS (only when custom domain set; toggle via `local.use_custom_domain` in `locals.tf`).
-- Backend is local by default (state in `infra/`); a commented-out S3 backend stub lives in `backend.tf`.
-- CloudFront access logging is intentionally disabled (commented out in both `cloudfront.tf` and `s3.tf`) — re-enabling requires reinstating the logs bucket and an ACL-compatible ownership setting.
+- `backend.tf` — Terraform required providers + AWS provider config (region + us-east-1 alias for ACM). Backend is local by default; commented-out S3 backend stub for future use.
+- CloudFront access logging is intentionally disabled — re-enabling requires reinstating the logs bucket and an ACL-compatible ownership setting.
 
 Region: `eu-west-3` for everything except the ACM cert (`us-east-1`, via the `aws.use1` provider alias) which CloudFront requires.
 
-### Two GitHub Actions workflows, deliberately separated
+### GitHub Actions workflows
 
-- `.github/workflows/infrastructure.yml` — fires on changes under `infra/**`. Builds `lambda-notify.zip`, runs `terraform fmt/validate/plan`, applies on push to `main`. PRs get a plan comment but no apply.
-- `.github/workflows/deploy.yml` — fires on push to `main`. Builds the Next site, syncs `./out` to S3 with two cache policies (5 min for HTML, 1 year immutable for `_next/` assets), invalidates CloudFront.
+- `.github/workflows/infrastructure.yml` — fires on changes under `infra/**`. Runs `terraform fmt/validate/plan`, applies on push to `main`. PRs get a plan comment but no apply.
+- `.github/workflows/deploy.yml` — fires on push to `main`. Builds the Next site, syncs `./out` to S3 with two cache policies (5 min for HTML, 1 year immutable for `_next/` assets), looks up the CloudFront distribution by S3 origin, then invalidates `/*`.
 
 Both authenticate to AWS via OIDC role assumption (`AWS_ROLE_TO_ASSUME` secret), not access keys.
 
-Required GitHub secrets: `AWS_ROLE_TO_ASSUME`, `AWS_REGION`, `RESEND_API_KEY`, `RESEND_ACCOUNT_EMAIL`, `DISTRIBUTION_ID`, `API_GATEWAY_URL`.
+Required GitHub secrets: `AWS_ROLE_TO_ASSUME`, `AWS_REGION`.
 
 ### Env files
 
 - `env.example` — local dev template, copy to `.env.local`.
-- `env.production` — committed file, populated by the deploy workflow at build time.
-- `infra/terraform.tfvars` is gitignored; `infra/terraform.tfvars.template` has `REPLACE_WITH_SECRET` placeholders rewritten by the infra workflow via `sed`.
+- `env.production` — committed file, used at build time. Currently only contains `NODE_ENV=production`.
+- `infra/terraform.tfvars` is gitignored in CI; `infra/terraform.tfvars.template` is the canonical source the workflow copies.
 
 ## Conventions
 
 - Code comments, commit messages, and UI copy are in French. Match the existing language when editing.
-- When changing the notification email's HTML or behavior, update **both** `src/app/api/notify/route.ts` and `lambda-notify/index.js` so dev and prod stay aligned.
-- After editing anything under `lambda-notify/`, the infra workflow rebuilds the zip; locally you can run `infra/build-lambda.sh` (or `scripts/build-lambda.sh`) before `terraform apply`.
+- When editing missions / experience, update **both** `src/app/_data/profile.ts` and `EXPERIENCES.md`. Regenerate PDF + DOCX in `public/` if you want the downloads in sync.

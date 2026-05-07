@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
   }
   
   # Backend local par défaut
@@ -15,12 +19,6 @@ terraform {
   #   key    = "cv-clean/terraform.tfstate"
   #   region = "eu-west-3"
   # }
-}
-
-# Configuration des variables d'environnement
-locals {
-  resend_api_key = try(coalesce(var.resend_api_key, ""), "")
-  resend_account_email = try(coalesce(var.resend_account_email, ""), "")
 }
 
 # Configuration des providers

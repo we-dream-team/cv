@@ -1,17 +1,10 @@
-# Template pour les variables Terraform
-# Ce fichier est utilisé par le workflow GitHub Actions
-
-project_name = "portfolio-faycal"
+project_name     = "portfolio-faycal"
 site_bucket_name = "portfolio-faycal-site-bucket-cv"
-region = "eu-west-3"
-price_class = "PriceClass_100"
-
-# Ces variables seront remplacées par le workflow
-resend_api_key = "REPLACE_WITH_SECRET"
-resend_account_email = "REPLACE_WITH_SECRET"
+region           = "eu-west-3"
+price_class      = "PriceClass_100"
 
 default_tags = {
-  ManagedBy = "Terraform"
-  Project   = "portfolio-faycal"
+  ManagedBy   = "Terraform"
+  Project     = "portfolio-faycal"
   Environment = "production"
 }

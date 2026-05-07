@@ -45,22 +45,11 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
         role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
         
-    - name: 🔨 Build Lambda Function
-      run: |
-        cd lambda-notify
-        npm install --production
-        zip -r ../infra/lambda-notify.zip .
-        cd ..
-        
     - name: 🔧 Setup Terraform Variables
       run: |
         cd infra
         cp terraform.tfvars.template terraform.tfvars
-        sed -i "s|REPLACE_WITH_SECRET|${{ secrets.RESEND_API_KEY }}|g" terraform.tfvars
-        sed -i "s|REPLACE_WITH_SECRET|${{ secrets.RESEND_ACCOUNT_EMAIL }}|g" terraform.tfvars
-        
 
-        
     - name: 🔍 Terraform Init
       run: |
         cd infra
@@ -80,10 +69,7 @@ jobs:
       id: plan
       run: |
         cd infra
-        terraform plan -detailed-exitcode \
-          -var "resend_api_key=${{ secrets.RESEND_API_KEY }}" \
-          -var "resend_account_email=${{ secrets.RESEND_ACCOUNT_EMAIL }}" \
-          -out=tf.plan
+        terraform plan -detailed-exitcode -out=tf.plan
       continue-on-error: true
       
     - name: 📋 Terraform Plan Status
