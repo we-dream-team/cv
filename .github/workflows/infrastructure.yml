@@ -2,15 +2,16 @@ name: 🏗️ Deploy Infrastructure
 
 on:
   push:
-    paths:
-      - 'infra/**'
-      - '.github/workflows/infrastructure.yml'
     branches: [ main ]
   pull_request:
     paths:
       - 'infra/**'
     branches: [ main ]
   workflow_dispatch:
+
+concurrency:
+  group: cv-aws-deploy
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -81,13 +82,13 @@ jobs:
         fi
         
     - name: 🚀 Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
       run: |
         cd infra
         terraform apply -auto-approve tf.plan
         
     - name: 📤 Terraform Outputs
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
       run: |
         cd infra
         echo "🏗️ Infrastructure déployée avec succès !"

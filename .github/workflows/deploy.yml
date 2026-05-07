@@ -1,27 +1,39 @@
 name: 🚀 Deploy CV to AWS
 
 on:
-  push:
-    branches: 
-      - main
+  workflow_run:
+    workflows: ["🏗️ Deploy Infrastructure"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
-    
+
 permissions:
   contents: read
   id-token: write  # if you prefer OIDC with role assumption
-  
+
+concurrency:
+  group: cv-aws-deploy
+  cancel-in-progress: false
+
 env:
   NODE_VERSION: '20'
-  BUCKET_NAME: portfolio-faycal-site-bucket-cv 
+  BUCKET_NAME: portfolio-faycal-site-bucket-cv
   AWS_REGION: 'eu-west-3'
 
 jobs:
   build-and-deploy:
+    # Si déclenché par workflow_run, n'exécute que si l'infrastructure est passée.
+    # workflow_dispatch (manuel) reste autorisé.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
+      with:
+        # Quand déclenché par workflow_run, checkout le SHA du run upstream
+        # pour rester aligné avec la révision déployée par l'infrastructure.
+        ref: ${{ github.event.workflow_run.head_sha || github.ref }}
       
     - name: 🟢 Setup Node.js
       uses: actions/setup-node@v4

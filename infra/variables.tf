@@ -22,7 +22,13 @@ variable "domain_name" {
 
 variable "hosted_zone_id" {
   type        = string
-  description = "(Optional) Route53 Hosted Zone ID for domain_name"
+  description = "(Optional) Route53 Hosted Zone ID for domain_name. If empty, looked up by zone_name (or domain_name)."
+  default     = ""
+}
+
+variable "zone_name" {
+  type        = string
+  description = "(Optional) Route53 zone name to look up when hosted_zone_id is empty. Defaults to domain_name."
   default     = ""
 }
 

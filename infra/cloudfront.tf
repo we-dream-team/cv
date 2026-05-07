@@ -45,7 +45,7 @@ resource "aws_acm_certificate" "cert" {
 # Enregistrements DNS pour valider le certificat
 resource "aws_route53_record" "cert_validation" {
   count   = local.use_custom_domain ? length(aws_acm_certificate.cert[0].domain_validation_options) : 0
-  zone_id = var.hosted_zone_id
+  zone_id = local.hosted_zone_id
   name    = tolist(aws_acm_certificate.cert[0].domain_validation_options)[count.index].resource_record_name
   type    = tolist(aws_acm_certificate.cert[0].domain_validation_options)[count.index].resource_record_type
   records = [tolist(aws_acm_certificate.cert[0].domain_validation_options)[count.index].resource_record_value]

@@ -13,6 +13,8 @@ set -euo pipefail
 STATE_BUCKET="${STATE_BUCKET:-portfolio-faycal-tfstate}"
 SITE_BUCKET="${SITE_BUCKET:-portfolio-faycal-site-bucket-cv}"
 REGION="${REGION:-eu-west-3}"
+DOMAIN_NAME="${DOMAIN_NAME:-cv.wedreamteam.com}"
+ZONE_NAME="${ZONE_NAME:-cv.wedreamteam.com}"
 
 log() { printf '\n\033[1;34m▶ %s\033[0m\n' "$*"; }
 
@@ -128,6 +130,49 @@ import_if_missing "aws_cloudfront_distribution.this" "$DIST_ID"
 if aws cloudfront describe-function --name portfolio-faycal-rewrite-index --stage LIVE >/dev/null 2>&1 \
    || aws cloudfront describe-function --name portfolio-faycal-rewrite-index --stage DEVELOPMENT >/dev/null 2>&1; then
   import_if_missing "aws_cloudfront_function.rewrite_index" "portfolio-faycal-rewrite-index"
+fi
+
+# ─── 6. Import DNS + ACM (domaine personnalisé) ───────────────────────────────
+
+log "Découverte de la zone Route53 ${ZONE_NAME}"
+ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name "${ZONE_NAME}" \
+  --query "HostedZones[?Name=='${ZONE_NAME}.'].Id | [0]" \
+  --output text 2>/dev/null | sed 's|/hostedzone/||')
+
+if [[ -z "$ZONE_ID" || "$ZONE_ID" == "None" ]]; then
+  echo "  (Aucune zone Route53 ${ZONE_NAME} — skip DNS/ACM imports)"
+else
+  echo "  zone_id: $ZONE_ID"
+
+  # Alias A record cv.wedreamteam.com → CloudFront
+  ALIAS_FQDN="${DOMAIN_NAME}."
+  if aws route53 list-resource-record-sets --hosted-zone-id "$ZONE_ID" \
+       --query "ResourceRecordSets[?Name=='${ALIAS_FQDN}' && Type=='A'].Name | [0]" \
+       --output text 2>/dev/null | grep -q "${ALIAS_FQDN}"; then
+    import_if_missing "aws_route53_record.alias[0]" "${ZONE_ID}_${DOMAIN_NAME}_A"
+  fi
+
+  # Cert ACM en us-east-1 (CloudFront l'exige)
+  CERT_ARN=$(aws acm list-certificates --region us-east-1 \
+    --query "CertificateSummaryList[?DomainName=='${DOMAIN_NAME}'].CertificateArn | [0]" \
+    --output text 2>/dev/null)
+  if [[ -n "$CERT_ARN" && "$CERT_ARN" != "None" ]]; then
+    echo "  ACM cert: $CERT_ARN"
+    import_if_missing "aws_acm_certificate.cert[0]" "$CERT_ARN"
+
+    # Records de validation ACM (CNAME)
+    VALIDATION_RECORDS=$(aws acm describe-certificate --region us-east-1 --certificate-arn "$CERT_ARN" \
+      --query "Certificate.DomainValidationOptions[].ResourceRecord.[Name,Type]" \
+      --output text 2>/dev/null)
+    idx=0
+    while IFS=$'\t' read -r rec_name rec_type; do
+      [[ -z "$rec_name" || "$rec_name" == "None" ]] && continue
+      # Trim trailing dot
+      rec_name="${rec_name%.}"
+      import_if_missing "aws_route53_record.cert_validation[$idx]" "${ZONE_ID}_${rec_name}_${rec_type}"
+      idx=$((idx + 1))
+    done <<< "$VALIDATION_RECORDS"
+  fi
 fi
 
 log "Bootstrap terminé"

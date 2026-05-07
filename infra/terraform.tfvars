@@ -3,6 +3,10 @@ site_bucket_name = "portfolio-faycal-site-bucket-cv"
 region           = "eu-west-3"
 price_class      = "PriceClass_100"
 
+# Domaine personnalisé (DNS, ACM, alias CloudFront)
+domain_name = "cv.wedreamteam.com"
+zone_name   = "cv.wedreamteam.com"
+
 default_tags = {
   ManagedBy   = "Terraform"
   Project     = "portfolio-faycal"
