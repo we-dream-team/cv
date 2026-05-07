@@ -52,7 +52,7 @@
 
 ## Sites clients (références)
 - MN Médecine Esthétique (https://mn-medecine-esthetique.com)
-- Pluridental (https://pluridental.com)
+- Pluridental (https://pluridental.fr)
 
 ## Compétences clés (knowsAbout)
 Cloud computing, AWS, Google Cloud Platform, Kubernetes, EKS, GKE, Terraform,

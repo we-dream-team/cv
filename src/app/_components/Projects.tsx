@@ -36,8 +36,8 @@ const PROJECTS: Project[] = [
   },
   {
     name: 'Pluridental',
-    domain: 'pluridental.com',
-    href: 'https://pluridental.com',
+    domain: 'pluridental.fr',
+    href: 'https://pluridental.fr',
     description: 'Site vitrine — cabinet dentaire pluridisciplinaire.',
     kind: 'client',
   },
