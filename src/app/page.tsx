@@ -38,31 +38,76 @@ export default function Page() {
     })
   }, [query, tag])
 
-  const jsonLd = useMemo(
-    () => ({
+  const jsonLd = useMemo(() => {
+    const siteUrl = 'https://cv.wedreamteam.com'
+    const personId = `${siteUrl}/#person`
+    const phoneE164 = `+33${PROFILE.phone.replace(/\s/g, '').replace(/^0/, '')}`
+
+    const person = {
       '@context': 'https://schema.org',
       '@type': 'Person',
+      '@id': personId,
       name: PROFILE.name,
+      givenName: 'Fayçal',
+      familyName: 'ZOUAOUI',
       jobTitle: PROFILE.role,
-      address: PROFILE.location,
+      description:
+        'Tech Lead DevOps et Cloud Engineer à Lille. 10+ ans d’expérience en industrialisation de plateformes cloud (AWS, GCP, Kubernetes, Terraform, GitOps, sécurité).',
+      url: `${siteUrl}/`,
+      image: `${siteUrl}/og.png`,
       email: `mailto:${PROFILE.email}`,
-      worksFor: 'Indépendant / Missions',
-      hasPart: {
-        '@type': 'ItemList',
-        itemListElement: MISSIONS.map((m, i) => ({
-          '@type': 'ListItem',
-          position: i + 1,
-          item: {
-            '@type': 'CreativeWork',
-            name: `${m.company} – ${m.title}`,
-            description: `${m.dates} – ${m.objectif}`,
-            about: m.tags.join(', '),
-          },
-        })),
+      telephone: phoneE164,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Lille',
+        addressRegion: 'Hauts-de-France',
+        addressCountry: 'FR',
       },
-    }),
-    []
-  )
+      worksFor: {
+        '@type': 'Organization',
+        name: 'We Dream Team',
+        url: 'https://wedreamteam.com',
+      },
+      knowsAbout: [
+        'Cloud computing',
+        'Amazon Web Services',
+        'Google Cloud Platform',
+        'Kubernetes',
+        'Terraform',
+        'GitOps',
+        'DevOps',
+        'Platform Engineering',
+        'Infrastructure as Code',
+        'CI/CD',
+        'Cloud Security',
+        'FinOps',
+        'Observability',
+        'Site Reliability Engineering',
+      ],
+      knowsLanguage: ['fr', 'en'],
+      sameAs: [PROFILE.linkedin, PROFILE.github].filter(Boolean),
+      hasOccupation: MISSIONS.map((m) => ({
+        '@type': 'Occupation',
+        name: `${m.title} — ${m.company}`,
+        description: m.objectif,
+        occupationLocation: { '@type': 'Place', name: m.company },
+        skills: m.tags.join(', '),
+      })),
+    }
+
+    const website = {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: `${siteUrl}/`,
+      name: `${PROFILE.name} — Portfolio`,
+      inLanguage: 'fr-FR',
+      author: { '@id': personId },
+      publisher: { '@id': personId },
+    }
+
+    return [person, website]
+  }, [])
 
   const handleTagClick = (t: string) => {
     setTag((prev) => (prev === t ? null : t))

@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowUpRight, Linkedin, Mail, MapPin, Phone } from 'lucide-react'
+import { ArrowUpRight, Github, Linkedin, Mail, MapPin, Phone } from 'lucide-react'
 import { PROFILE } from '../_data/profile'
 import { VisitorCount } from './VisitorCount'
 
@@ -38,6 +38,17 @@ export function ContactFooter() {
       display: PROFILE.linkedin.replace(/^https?:\/\//, ''),
       href: PROFILE.linkedin,
       icon: Linkedin,
+      external: true,
+    })
+  }
+
+  if (PROFILE.github) {
+    items.push({
+      label: 'GitHub',
+      value: PROFILE.github,
+      display: PROFILE.github.replace(/^https?:\/\//, ''),
+      href: PROFILE.github,
+      icon: Github,
       external: true,
     })
   }

@@ -1,21 +1,65 @@
-# Fayçal ZOUAOUI — Ingénieur Cloud / DevOps
+# Fayçal ZOUAOUI — Tech Lead DevOps · Cloud Engineer
 
-Portfolio de missions de Fayçal ZOUAOUI, Tech Lead DevOps basé à Lille (France).
-10+ ans d'expérience AWS, Kubernetes, Terraform, GitOps, sécurité cloud.
+> Portfolio professionnel de Fayçal ZOUAOUI, Tech Lead DevOps et Cloud Engineer
+> basé à Lille (France), 10+ ans d'expérience en industrialisation de plateformes
+> cloud (AWS, GCP, Kubernetes, Terraform, GitOps, sécurité). Disponible pour des
+> missions freelance en Tech Lead DevOps, Platform Engineer ou Cloud Architect.
+
+## Identité
+- Nom : Fayçal ZOUAOUI
+- Rôle : Tech Lead DevOps · Cloud Engineer · Platform Engineer
+- Localisation : Lille, Hauts-de-France, France
+- Statut : Freelance / disponible pour de nouvelles missions
+- Site canonique : https://cv.wedreamteam.com
+- Agence : https://wedreamteam.com
 
 ## Contact
-- Email: faycal.zouaoui@wedreamteam.com
-- LinkedIn: https://www.linkedin.com/in/faycal-zouaoui-65b0a5201
-- Localisation: Lille, France
+- Email : faycal.zouaoui@wedreamteam.com
+- Téléphone : +33 6 51 16 02 07
+- LinkedIn : https://www.linkedin.com/in/faycal-zouaoui-65b0a5201
+- GitHub : https://github.com/zouaoui-faycal
 
-## Missions principales
-- Waykonect (TotalEnergies) — Tech Lead DevOps (2023–présent)
-- SNCF Connect & Tech — Cloud Engineer AWS (2022–2023)
-- Société Générale — Cloud Engineer AWS / DevOps (2018–2022)
-- Finalcad — Cloud Engineer AWS (2020–2021)
-- PMU — DevOps (2018)
-- SFIL — Ingénieur Linux & Production (2015–2018)
+## Pages clés
+- [CV / Portfolio](https://cv.wedreamteam.com/) : missions, stack technique, réalisations
+- [CV PDF](https://cv.wedreamteam.com/cv-faycal-zouaoui.pdf) : version imprimable
+- [CV DOCX](https://cv.wedreamteam.com/cv-faycal-zouaoui.docx) : version éditable
+- [Compteur de visites](https://cv.wedreamteam.com/count/) : public
 
-## Stack
-AWS, EKS, Terraform, GitHub Actions, FluxCD, ArgoCD, Helm, Vault,
-Prometheus, Grafana, Jenkins, CircleCI, GitOps, Trivy, ACM-PCA, KEDA.
+## Missions (les plus récentes en premier)
+- Dailymotion — Platform Engineer (Octobre 2025 – Présent) : EKS / GKE multi-cloud, Wiz CNAPP, GitOps Flux, FinOps.
+- Nexity — Cloud / DevOps Engineer · CCOE (Janvier 2025 – Octobre 2025) : standardisation Terraform / Terragrunt, EKS GitOps, OIDC / IRSA, observabilité.
+- Waykonect (filiale TotalEnergies) — Tech Lead DevOps (Novembre 2023 – Décembre 2024) : cadre commun CI/CD GitHub Actions, IaC Terraform / CloudFormation, sécurité Trivy / ACM-PCA.
+- SNCF Connect & Tech — Cloud Engineer AWS (Juillet 2022 – Juillet 2023) : migration EC2 → EKS, GitOps FluxCD, Vault, KEDA.
+- Société Générale — Cloud Engineer AWS (Mars 2021 – Juin 2022) : modules Terraform standardisés, Vault blue/green, Jaeger sur EKS.
+- Finalcad — Cloud Engineer AWS (2020 – 2021).
+- PMU — DevOps (2018).
+- SFIL — Ingénieur Linux & Production (2015 – 2018).
+
+## Stack technique
+- Cloud : AWS (EKS, EC2, RDS, ElastiCache, OpenSearch, Route53, ACM, EventBridge, SSM), GCP (GKE)
+- Conteneurs / orchestration : Kubernetes, Helm, ChartMuseum, KEDA
+- IaC : Terraform, Terragrunt, CloudFormation
+- GitOps : FluxCD, ArgoCD, Helm
+- CI/CD : GitHub Actions, Jenkins, CircleCI
+- Sécurité : Wiz CNAPP, Kyverno, Trivy, OIDC, IRSA, ACM-PCA, Vault, External Secrets
+- Observabilité : Datadog, Dynatrace, OpenTelemetry, Prometheus, Grafana, Jaeger
+- FinOps : audit ressources, dashboards de coût, optimisation requests/limits
+- Langages : Python, Go, Bash
+
+## Projets personnels
+- We Dream Team (https://wedreamteam.com) : agence Cloud / DevOps.
+- Dentaboard (https://dentaboard.com) : SaaS de pilotage pour cabinets dentaires.
+
+## Sites clients (références)
+- MN Médecine Esthétique (https://mn-medecine-esthetique.com)
+- Pluridental (https://pluridental.com)
+
+## Compétences clés (knowsAbout)
+Cloud computing, AWS, Google Cloud Platform, Kubernetes, EKS, GKE, Terraform,
+Terragrunt, GitOps, FluxCD, ArgoCD, Helm, CI/CD, GitHub Actions, Cloud Security,
+Wiz, Kyverno, OIDC, IRSA, Vault, Observability, Datadog, Dynatrace, OpenTelemetry,
+FinOps, Platform Engineering, Infrastructure as Code, DevOps, SRE.
+
+## Langues
+- Français (natif)
+- Anglais (professionnel)

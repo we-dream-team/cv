@@ -3,9 +3,10 @@
 **Tech Lead DevOps · Cloud Engineer** — Lille, France
 Industrialisation cloud, sécurité et fiabilité — pour des plateformes qui tiennent à l'échelle.
 
-- Email : zouaoui.faycal.p@gmail.com
+- Email : faycal.zouaoui@wedreamteam.com
 - Téléphone : 06 51 16 02 07
 - LinkedIn : https://www.linkedin.com/in/faycal-zouaoui-65b0a5201
+- GitHub : https://github.com/zouaoui-faycal
 - Stack signature : AWS · Kubernetes · Terraform · GitOps
 
 ---
