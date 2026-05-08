@@ -118,9 +118,16 @@ export function ContactFooter() {
             <MapPin className="h-4 w-4" /> Basé à {PROFILE.location}
           </p>
           <VisitorCount />
-          <p className="font-mono text-2xs uppercase tracking-[0.2em]">
-            © {new Date().getFullYear()} {PROFILE.name}
-          </p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-2xs uppercase tracking-[0.2em]">
+            <a
+              href="/mentions-legales/"
+              className="transition-colors hover:text-foreground"
+            >
+              Mentions légales
+            </a>
+            <span aria-hidden>·</span>
+            <span>© {new Date().getFullYear()} {PROFILE.name}</span>
+          </div>
         </div>
       </div>
     </footer>
