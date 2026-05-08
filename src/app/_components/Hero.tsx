@@ -59,13 +59,13 @@ export function Hero() {
         </p>
 
         <p className="mt-6 max-w-3xl text-base leading-relaxed text-muted-foreground text-pretty">
-          Tech Lead DevOps et Cloud Engineer basé à Lille, Fayçal ZOUAOUI accompagne
+          Tech Lead DevOps et Cloud Engineer basé à Lille. Fayçal ZOUAOUI, j’accompagne
           depuis 2015 des grands comptes (Dailymotion, TotalEnergies, SNCF Connect &amp; Tech,
           Société Générale, Nexity) dans l’industrialisation de leurs plateformes cloud.
-          Sa pratique combine architectures AWS et GCP multi-comptes, exploitation de clusters
+          Ma pratique combine architectures AWS et GCP multi-comptes, exploitation de clusters
           Kubernetes (EKS, GKE) en GitOps (FluxCD, Helm, ArgoCD), Infrastructure as Code
           (Terraform, Terragrunt) et sécurité cloud (Wiz CNAPP, Kyverno, OIDC, IRSA, Vault).
-          Il intervient en Tech Lead, Platform Engineer ou Cloud Architect sur des contextes
+          J’interviens en Tech Lead, Platform Engineer ou Cloud Architect sur des contextes
           exigeants en scale, fiabilité et conformité, avec un focus sur la standardisation
           CI/CD (GitHub Actions), l’observabilité (Datadog, Dynatrace, OpenTelemetry) et
           l’efficience FinOps. Disponible pour de nouvelles missions freelance, à Lille
