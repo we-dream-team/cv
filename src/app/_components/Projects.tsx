@@ -28,6 +28,13 @@ const PROJECTS: Project[] = [
     kind: 'perso',
   },
   {
+    name: 'Leasing Malin',
+    domain: 'leasingmalin.com',
+    href: 'https://leasingmalin.com',
+    description: 'Plateforme de leasing — comparaison & souscription en ligne.',
+    kind: 'perso',
+  },
+  {
     name: 'MN Médecine Esthétique',
     domain: 'mn-medecine-esthetique.com',
     href: 'https://mn-medecine-esthetique.com',

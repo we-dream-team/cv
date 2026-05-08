@@ -49,6 +49,7 @@
 ## Projets personnels
 - We Dream Team (https://wedreamteam.com) : agence Cloud / DevOps.
 - Dentaboard (https://dentaboard.com) : SaaS de pilotage pour cabinets dentaires.
+- Leasing Malin (https://leasingmalin.com) : plateforme de leasing en ligne.
 
 ## Sites clients (références)
 - MN Médecine Esthétique (https://mn-medecine-esthetique.com)
