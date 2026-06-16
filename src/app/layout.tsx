@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from 'next'
-import { Archivo, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { Anton, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-const fontHeading = Archivo({
+// Récit : Anton (poster condensé) pour les punchlines géantes.
+const fontHeading = Anton({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-heading',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['400'],
 })
 
 const fontBody = Space_Grotesk({
@@ -20,7 +21,7 @@ const fontMono = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-mono',
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -63,8 +64,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fafafa' },
-    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+    { media: '(prefers-color-scheme: light)', color: '#e8e4db' },
+    { media: '(prefers-color-scheme: dark)', color: '#e8e4db' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -74,7 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="fr"
-      className={`dark ${fontHeading.variable} ${fontBody.variable} ${fontMono.variable}`}
+      className={`${fontHeading.variable} ${fontBody.variable} ${fontMono.variable}`}
     >
       <body>{children}</body>
     </html>
